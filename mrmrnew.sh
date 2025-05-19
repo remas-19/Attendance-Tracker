@@ -3,7 +3,7 @@
 #Ask the user to enter a student name to search
 read -p "Enter student name to search: " query
 
-# Search for the student in the CSV file (case-insensitive)
+#Search for the student in the CSV file (case-insensitive)
 echo "Search Results:"
 grep -i "$query" students.csv > /dev/null 2>&1
 
@@ -11,7 +11,7 @@ if [ $? -ne 0 ]; then
     # If no matching student found, show message
     echo "No matching student found."
 else
-    # If found, print details and check absence ratio
+    #If found, print details and check absence ratio
     grep -i "$query" students.csv | while IFS=',' read -r name present absent hours
     do
         # Calculate total attendance days
