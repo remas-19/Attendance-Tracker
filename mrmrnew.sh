@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Ask the user to enter a student name to search
+#Ask the user to enter a student name to search
 read -p "Enter student name to search: " query
 
 # Search for the student in the CSV file (case-insensitive)
