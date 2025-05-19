@@ -35,4 +35,4 @@ awk -F',' 'NR>1 {
 echo "✅ Report generated and saved in: $report"
 echo "📅 Date: $(date +%F)"
 echo "────────────────────────────"
-cat "$report"             # Display the report
+cat "$report"
