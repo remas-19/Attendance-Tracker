@@ -1,87 +1,38 @@
 #!/bin/bash 
 
-mkdir -p Reports  # Create "Reports" folder if not exist
+# Ask the user to enter the name of the CSV file
+read -p "Enter CSV file name: " file
 
-while true; do  # Start main menu loop
+# Check if the file exists
+if [[ ! -f "$file" ]]; then
+  echo "Error: File '$file' not found."  # Show error if file doesn't exist
+  exit 1  # Exit the script with error
+fi
 
-  echo ""
-  echo "Attendance Tracker"
-  echo "1) Analyze Attendance File"
-  echo "2) View Last Report"
-  echo "3) Show Students with < 50% Attendance"
-  echo "4) Exit"
-  echo -n "Enter your choice: "
-  read choice  # Get user input
+# Create a folder called "Reports" if it doesn't already exist
+mkdir -p Reports
 
-  case $choice in
+# Create a report filename with today's date
+report="Reports/report_$(date +%F).txt"
 
-    1)  # Analyze attendance file
-      echo -n "Enter CSV file name: "
-      read file  # Read file name
+# Use awk to read the CSV file and calculate attendance percentage
+awk -F',' 'NR>1 {
+  name = $1          # Column 1: student name
+  p = $2 + 0          # Column 2: present days
+  a = $3 + 0          # Column 3: absent days
+  t = p + a           # Total sessions
 
-      if [[ ! -f "$file" ]]; then
-        echo "File not found!"
-        continue
-      fi
+  if (t > 0) {
+    percent = (p / t) * 100                    # Calculate attendance %
+    status = (percent >= 75) ? "✅" : "❌"     # Mark ✅ if >=75%, else ❌
+    printf "%s | %.1f%% | %s\n", name, percent, status  # Print line
+  } else {
+    printf "%s | --- | No Data\n", name       # Handle if total is 0
+  }
+}' "$file" > "$report"  # Write output to report file
 
-      report="Reports/report_$(date +%Y-%m-%d).txt"  # Output file with date
-
-      awk -F',' 'NR>1 {
-        name = $1
-        p = $2 + 0
-        a = $3 + 0
-        t = p + a
-
-        if (t > 0) {
-          percent = (p / t) * 100
-          status = (percent >= 75) ? "✅" : "❌"
-          printf "%s | %.1f%% | %s\n", name, percent, status
-        } else {
-          printf "%s | --- | No Data\n", name
-        }
-      }' "$file" | tee "$report"  # Save and display output
-
-      echo "Report saved to: $report"
-      ;;
-
-    2)  # Show last saved report
-      last=$(ls -t Reports/report_*.txt 2>/dev/null | head -n 1)
-
-      if [[ -f "$last" ]]; then
-        echo ""
-        echo "Last Report:"
-        cat "$last"
-      else
-        echo "No reports found."
-      fi
-      ;;
-
-    3)  # Show students with attendance < 50%
-      last=$(ls -t Reports/report_*.txt 2>/dev/null | head -n 1)
-
-      if [[ ! -f "$last" ]]; then
-        echo "No reports found to filter."
-        continue
-      fi
-
-      echo ""
-      echo "Students with < 50% Attendance:"
-
-      grep "❌" "$last" | awk -F'|' '{
-        gsub(/%/, "", $2)
-        if ($2 + 0 < 50) print
-      }' | sed 's/|/│/g'
-
-      echo ""
-      ;;
-
-    4)  # Exit
-      echo "Thank you for using Attendance Tracker!"
-      exit
-      ;;
-
-    *)  # Invalid input
-      echo "Invalid choice."
-      ;;
-  esac
-done
+# Print a message and show the report content
+echo "✅ Report generated and saved in: $report"
+echo "📅 Date: $(date +%F)"
+echo "────────────────────────────"
+cat "$report"             # Display the report
