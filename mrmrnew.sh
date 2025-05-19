@@ -8,13 +8,13 @@ echo "Search Results:"
 grep -i "$query" students.csv > /dev/null 2>&1
 
 if [ $? -ne 0 ]; then
-    # If no matching student found, show message
+    #If no matching student found, show message
     echo "No matching student found."
 else
     #If found, print details and check absence ratio
     grep -i "$query" students.csv | while IFS=',' read -r name present absent hours
     do
-        # Calculate total attendance days
+        #Calculate total attendance days
         total=$((present + absent))
         if [ $total -gt 0 ]; then
             # Calculate absence ratio as percentage
