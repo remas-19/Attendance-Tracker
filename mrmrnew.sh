@@ -40,7 +40,7 @@ echo "Generating absence alerts..."
 awk -F',' 'NR>1 {
     total = $2 + $3
     if (total > 0) {
-        ratio = $3 / total
+        ratio = $2 / total
         if (ratio > 0.25) {
             printf("%s has high absence rate (%.2f%%) - You have exceeded 25%% absence.\n", $1, ratio*100)
         }
